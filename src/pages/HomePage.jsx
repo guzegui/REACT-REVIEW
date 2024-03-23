@@ -6,6 +6,7 @@ const productsAPI = "https://api-test.adaptable.app/products";
 
 function HomePage() {
   const [products, setProducts] = useState(null);
+  const [showInStock, setShowInStock] = useState(false);
   const [productsFromAPI, setProductsFromAPI] = useState([]);
   const [searchProducts, setSearchProducts] = useState("");
 
@@ -18,14 +19,21 @@ function HomePage() {
 
   useEffect(() => {
     filterProducts();
-  }, [searchProducts]);
+  }, [searchProducts, showInStock]);
 
   const filterProducts = () => {
-    const filteredProducts = productsFromAPI.filter((product) => {
+    let filteredProducts = productsFromAPI.filter((product) => {
       return product.description
         .toLowerCase()
         .includes(searchProducts.toLowerCase());
     });
+
+    if (showInStock) {
+      filteredProducts = filteredProducts.filter((product) => {
+        return product.inStock === showInStock;
+      });
+    }
+
     setProducts(filteredProducts);
   };
 
@@ -35,18 +43,9 @@ function HomePage() {
   };
 
   const toggleInStock = () => {
-    // If the products on page are the full list, toggle to show only in-stock products
-    if (products.length === productsFromAPI.length) {
-      setProducts(
-        productsFromAPI.filter((product) => {
-          return product.inStock;
-        })
-      );
-    } else {
-      // Otherwise, toggle to show all
-      setProducts(productsFromAPI);
-    }
+    setShowInStock(!showInStock);
   };
+
   return (
     <div className="container">
       <h1 style={{ fontSize: "24px" }}>Many products to choose from!</h1>
